@@ -32,7 +32,6 @@ class _ChatViewState extends ConsumerState<ChatView> {
   late String _currentUserUid;
   File? _file;
   bool isTyping = false;
-  bool _isMesageEmpty = true;
   @override
   void initState() {
     super.initState();
@@ -77,9 +76,10 @@ class _ChatViewState extends ConsumerState<ChatView> {
   }
 
   void _updateTypingStatus(bool typing) {
-    _isMesageEmpty =
-        _messageController.text.isEmpty &&
+    ref.read(isMessageEmptyProvider.notifier).state =
+        _messageController.text.isEmpty ||
         _messageController.text.trim().isEmpty;
+    _messageController.text.isEmpty || _messageController.text.trim().isEmpty;
     setState(() {});
     if (typing != isTyping) {
       isTyping = typing;
@@ -101,6 +101,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
     final messagesAsyncValue = ref.watch(getAllMessagesProvider(widget.chatId));
     final isRecording = ref.watch(chatViewModelProvider);
     final keyboardSize = MediaQuery.of(context).viewInsets.bottom;
+    final isMessageEmpty = ref.watch(isMessageEmptyProvider.notifier).state;
 
     return Scaffold(
       appBar: CustomAppBar(
@@ -257,7 +258,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
                     ),
             ),
             const SizedBox(width: 8),
-            if ((_isMesageEmpty) && _file == null)
+            if ((isMessageEmpty) && _file == null)
               GestureDetector(
                 onLongPressStart: (_) async {
                   await ref

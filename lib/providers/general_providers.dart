@@ -14,3 +14,5 @@ final obsecureProvider = StateProvider<bool>((ref) => true);
 final sharedPreferencesServiceProvider = Provider<SharedPreferencesService>(
   (ref) => SharedPreferencesService(),
 );
+
+final isMessageEmptyProvider  = StateProvider<bool>((ref)=>true);
