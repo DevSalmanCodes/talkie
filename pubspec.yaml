@@ -1,0 +1,46 @@
+name: talkie
+description: "A new Flutter project."
+publish_to: 'none' # Prevent publishing
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  firebase_core: ^3.14.0
+  riverpod: ^2.6.1
+  flutter_riverpod: ^2.6.1
+  fpdart: ^1.1.1
+  cached_network_image: ^3.3.1
+  cloud_firestore: ^5.6.9
+  firebase_auth: ^5.6.0
+  firebase_storage: ^12.4.7
+  image_picker: ^1.1.2
+  uuid: ^4.5.1
+  path_provider: ^2.1.5
+  photo_view: ^0.15.0
+  flutter_svg: ^1.1.0
+  permission_handler: ^11.0.1
+  lottie: ^3.3.1
+  intl: ^0.18.0
+  fluttertoast: ^8.2.12
+  lucide_icons: ^0.257.0
+  shared_preferences: ^2.5.3
+  record: ^6.0.0
+  voice_message_package: ^2.2.1
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/
+
