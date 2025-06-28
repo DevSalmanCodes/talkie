@@ -7,7 +7,9 @@
 
 ## Demo
 
-https://youtu.be/swpwdIzbDw0?si=1PtjQJIpdAKINFra## 🚀 Features
+https://youtu.be/swpwdIzbDw0?si=1PtjQJIpdAKINFra
+
+## 🚀 Features
 
 - ✅ **Text Messaging**
 - 🖼️ **Image Sharing** with preview and cancel
