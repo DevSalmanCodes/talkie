@@ -50,6 +50,7 @@ class UserRepository implements IUserRepository {
     final userUid = _auth.currentUser!.uid;
     await _firestore.collection('users').doc(userUid).update({
       'isOnline': status,
+      'lastSeen': DateTime.now().toIso8601String(),
     });
     return;
   }

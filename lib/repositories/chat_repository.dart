@@ -6,9 +6,6 @@ import 'package:talkie/constants/app_constants.dart';
 import 'package:talkie/models/message_model.dart';
 import 'package:talkie/providers/general_providers.dart';
 import 'package:talkie/repositories/failure.dart';
-import 'package:talkie/repositories/methods/storage_methods.dart';
-import 'package:talkie/services/user_service.dart';
-import 'package:talkie/view_models.dart/auth_view_model.dart';
 
 import '../type_defs.dart';
 
@@ -42,6 +39,7 @@ abstract class IChatRepository {
     String chatId,
     String reaction,
   );
+  FutureEitherVoid deleteMessages(String chatId, List<MessageModel>messageModels);
   Future<void> setTypingStatus(String chatId, String userId, bool isTyping);
 }
 
@@ -49,15 +47,14 @@ final chatRepositoryProvider = Provider(
   (ref) => ChatRepository(
     ref.watch(firebaseFirestoreProvider),
     ref.watch(firebaseAuthProvider),
-    ref.watch(userServiceProvider),
+   
   ),
 );
 
 class ChatRepository implements IChatRepository {
   final FirebaseFirestore _firestore;
   final FirebaseAuth _auth;
-  final UserService _userService;
-  ChatRepository(this._firestore, this._auth, this._userService);
+  ChatRepository(this._firestore, this._auth);
   @override
   Stream<List<QueryDocumentSnapshot<Map<String, dynamic>>>> getAllMessages(
     String chatId,
@@ -230,8 +227,6 @@ class ChatRepository implements IChatRepository {
     }
   }
 
-
-
   FutureVoid _sendMessage(
     String chatId,
     String docId,
@@ -251,9 +246,27 @@ class ChatRepository implements IChatRepository {
     String userId,
     bool isTyping,
   ) async {
-    final chatRef = FirebaseFirestore.instance.collection('chats').doc(chatId);
-    await chatRef.set({
-      'typing': {userId: isTyping},
-    }, SetOptions(merge: true));
+    FirebaseFirestore.instance.collection('chats').doc(chatId).update({
+      'typingStatus.$userId': isTyping,
+    });
+  }
+
+  @override
+  FutureEitherVoid deleteMessages(String chatId, List<MessageModel> messageModels) async {
+    try {
+      for (final messageModel in messageModels) {
+        await _firestore
+            .collection('chats')
+            .doc(chatId)
+            .collection('messages')
+            .doc(messageModel.id)
+            .delete();
+      }
+      return right(null);
+    } on FirebaseException catch (e, st) {
+      return left(Failure(e.message ?? 'Something went wrong', st.toString()));
+    } catch (e, st) {
+      return left(Failure(e.toString(), st.toString()));
+    }
   }
 }

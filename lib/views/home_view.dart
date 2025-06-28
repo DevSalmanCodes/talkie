@@ -41,7 +41,6 @@ class _HomeViewState extends ConsumerState<HomeView>
     ref.read(userViewModelProvider.notifier).changeUserStatus(status);
   }
 
-  
   void _onNavigateToSearch() {
     Navigator.pushNamed(context, RouteNames.searchView);
   }

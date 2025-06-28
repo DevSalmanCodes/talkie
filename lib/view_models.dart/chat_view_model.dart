@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -53,6 +54,7 @@ class ChatViewModel extends StateNotifier<bool> {
   final ChatRepository _chatRepository;
   final FirebaseAuth _auth;
   final AudioRecorder _audioRecorder;
+  int seconds = 0;
   ChatViewModel(
     this._firestore,
     this._chatRepository,
@@ -96,7 +98,7 @@ class ChatViewModel extends StateNotifier<bool> {
     );
   }
 
-  void sendTextMessage(
+  FutureVoid sendTextMessage(
     String chatId,
     String content,
     BuildContext context,
@@ -124,7 +126,11 @@ class ChatViewModel extends StateNotifier<bool> {
     await _chatRepository.markAsReadMessages(chatId);
   }
 
-  void sendImageMessage(String chatId, File file, BuildContext context) async {
+  FutureVoid sendImageMessage(
+    String chatId,
+    File file,
+    BuildContext context,
+  ) async {
     final messageId = const Uuid().v4();
     final url = await StorageMethods.uploadFileToFirebase(
       file: file,
@@ -149,7 +155,11 @@ class ChatViewModel extends StateNotifier<bool> {
     _chatRepository.addReactionToMessage(messageId, chatId, reaction);
   }
 
-  void sendVoiceMessage(String chatId, File file, BuildContext context) async {
+  FutureVoid sendVoiceMessage(
+    String chatId,
+    File file,
+    BuildContext context,
+  ) async {
     final messageId = const Uuid().v4();
     final url = await StorageMethods.uploadFileToFirebase(
       file: file,
@@ -166,19 +176,20 @@ class ChatViewModel extends StateNotifier<bool> {
     res.fold((l) => showToast(l.message ?? errorText), (r) => null);
   }
 
-  Future<void> startRecording() async {
+  FutureVoid startRecording() async {
     final hasPermission = await _audioRecorder.hasPermission();
     if (hasPermission) {
       final tempDir = Directory.systemTemp;
       final filePath = '${tempDir.path}/${const Uuid().v4()}.m4a';
       await _audioRecorder.start(const RecordConfig(), path: filePath);
+
       state = true;
     } else {
       showToast('Microphone permission denied');
     }
   }
 
-  Future<void> stopRecordingAndSend(String chatId, BuildContext context) async {
+  FutureVoid stopRecordingAndSend(String chatId, BuildContext context) async {
     if (await _audioRecorder.isRecording()) {
       final path = await _audioRecorder.stop();
       state = false;
@@ -217,5 +228,17 @@ class ChatViewModel extends StateNotifier<bool> {
 
   void updateTypingStatus(String chatId, String userId, bool isTyping) {
     _chatRepository.setTypingStatus(chatId, userId, isTyping);
+  }
+
+  FutureVoid cancelRecording() async {
+    if (await isRecording()) {
+      _audioRecorder.cancel();
+      state = false;
+    }
+  }
+
+  FutureVoid deleteMessages(String chatId, List<MessageModel> messageModels) async {
+    final res = await _chatRepository.deleteMessages(chatId, messageModels);
+    res.fold((l) => showToast(l.message!), (r) => null);
   }
 }

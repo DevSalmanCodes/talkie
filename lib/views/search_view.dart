@@ -75,7 +75,7 @@ class _SearchViewState extends ConsumerState<SearchView> {
               ),
               child: CustomTextField(
                 onChanged: _onChanged,
-                labelText: 'Search Users',
+                labelText: 'Search',
                 controller: _controller,
               ),
             ),

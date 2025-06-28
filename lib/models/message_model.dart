@@ -7,6 +7,9 @@ class MessageModel {
   final String type;
   final String contentUrl;
   final Map<String, List<String>> reactions;
+ 
+   
+
 
   MessageModel({
     required this.id,
@@ -48,5 +51,8 @@ class MessageModel {
         ),
       ),
     );
+  
   }
+
+
 }
