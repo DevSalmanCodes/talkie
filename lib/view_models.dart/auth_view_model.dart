@@ -3,23 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:talkie/models/user_model.dart';
-import 'package:talkie/providers/general_providers.dart';
 import 'package:talkie/repositories/auth_repository.dart';
 import 'package:talkie/repositories/methods/storage_methods.dart';
 import 'package:talkie/repositories/user_repository.dart';
-import 'package:talkie/services/user_service.dart';
 import 'package:talkie/utils/methods.dart';
 import 'package:talkie/utils/routes/route_names.dart';
-
-final userServiceProvider = Provider<UserService>((ref) {
-  return UserService(ref.watch(sharedPreferencesServiceProvider));
-});
 
 final authViewModelProvider = StateNotifierProvider<AuthViewModel, bool>(
   (ref) => AuthViewModel(
     ref.watch(authRepositoryProvider),
     ref.watch(userRepositoryProvider),
-    ref.watch(userServiceProvider),
   ),
 );
 
@@ -31,10 +24,8 @@ final authStateChangesProvider = StreamProvider.autoDispose<User?>((ref) {
 class AuthViewModel extends StateNotifier<bool> {
   final IAuthRepository _authRepository;
   final UserRepository _userRepository;
-  final UserService _userService;
 
-  AuthViewModel(this._authRepository, this._userRepository, this._userService)
-    : super(false);
+  AuthViewModel(this._authRepository, this._userRepository) : super(false);
 
   Future<void> signUp(
     String username,
@@ -66,7 +57,6 @@ class AuthViewModel extends StateNotifier<bool> {
           UserModel userModel = UserModel(
             username: username,
             email: email,
-            password: password,
             uid: id,
             profilePic: profilePicUrl ?? '',
             isOnline: false,
@@ -78,7 +68,6 @@ class AuthViewModel extends StateNotifier<bool> {
           await res2.fold(
             (l) async => _showError(l.message ?? 'Something went wrong'),
             (r) async {
-              await _userService.setUser(userModel);
               if (context.mounted) {
                 showToast('Please login to continue');
                 Navigator.pushNamed(context, RouteNames.login);

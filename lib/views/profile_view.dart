@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons/lucide_icons.dart';
 import 'package:talkie/constants/color_constants.dart';
 import 'package:talkie/utils/routes/route_names.dart';
+import 'package:talkie/utils/show_dialog.dart';
 import 'package:talkie/view_models.dart/auth_view_model.dart';
 import 'package:talkie/view_models.dart/user_view_model.dart';
 import 'package:talkie/widgets/loader.dart';
@@ -15,45 +16,12 @@ class ProfileView extends ConsumerWidget {
   const ProfileView({super.key});
 
   Future<void> _showLogoutDialog(BuildContext context, WidgetRef ref) async {
-    final shouldLogout = await showDialog<bool>(
-      context: context,
-      builder: (ctx) {
-        return Platform.isIOS
-            ? CupertinoAlertDialog(
-                title: const Text('Logout'),
-                content: const Text('Are you sure you want to logout?'),
-                actions: [
-                  CupertinoDialogAction(
-                    child: const Text('Cancel'),
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                  ),
-                  CupertinoDialogAction(
-                    isDestructiveAction: true,
-                    child: const Text('Logout'),
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                  ),
-                ],
-              )
-            : AlertDialog(
-                title: const Text('Logout'),
-                content: const Text('Are you sure you want to logout?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                    child: const Text(
-                      'Logout',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-              );
-      },
+    final shouldLogout = await showAlertDialog(
+      context,
+      'Logout',
+      'Are you sure you want to logoout?',
+      'Logout',
     );
-
     if (shouldLogout == true) {
       if (context.mounted) {
         ref.read(authViewModelProvider.notifier).signOut(context);

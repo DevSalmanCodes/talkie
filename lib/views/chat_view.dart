@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -16,6 +15,7 @@ import 'package:talkie/providers/recording_timer_provider.dart'
     as recordingtimer;
 import 'package:talkie/utils/methods.dart';
 import 'package:talkie/utils/play_sounds.dart';
+import 'package:talkie/utils/show_dialog.dart';
 import 'package:talkie/view_models.dart/chat_view_model.dart';
 import 'package:talkie/widgets/custom_app_bar.dart';
 import 'package:talkie/widgets/loader.dart';
@@ -113,43 +113,11 @@ class _ChatViewState extends ConsumerState<ChatView> {
     final String dialogContent = selectedMessages.length > 1
         ? ' Are you sure you want to delete ${selectedMessages.length} messages?'
         : 'Are you sure want to delete this message?';
-    final shouldDelete = await showDialog<bool>(
-      context: context,
-      builder: (ctx) {
-        return Platform.isIOS
-            ? CupertinoAlertDialog(
-                title: const Text('Logout'),
-                content: Text(dialogContent),
-                actions: [
-                  CupertinoDialogAction(
-                    child: const Text('Cancel'),
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                  ),
-                  CupertinoDialogAction(
-                    isDestructiveAction: true,
-                    child: const Text('Delete'),
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                  ),
-                ],
-              )
-            : AlertDialog(
-                title: const Text('Logout'),
-                content: Text(dialogContent),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(false),
-                    child: const Text('Cancel'),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.of(ctx).pop(true),
-                    child: const Text(
-                      'Delete',
-                      style: TextStyle(color: Colors.red),
-                    ),
-                  ),
-                ],
-              );
-      },
+    final shouldDelete = await showAlertDialog(
+      context,
+      'Delete',
+      dialogContent,
+      'Delete',
     );
 
     if (shouldDelete == true) {
@@ -451,9 +419,7 @@ class _ChatViewState extends ConsumerState<ChatView> {
                         }
                       : null,
                   onTap: () {
-                    if (!isMessageEmpty) {
-                      _onSendMessage();
-                    }
+                    _onSendMessage();
                   },
                   child: Stack(
                     alignment: Alignment.center,

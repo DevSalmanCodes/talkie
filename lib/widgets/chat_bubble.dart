@@ -38,7 +38,6 @@ class ChatBubble extends ConsumerWidget {
         : ColorConstants.receiverChatColor;
     final selectedMessages = ref.watch(selectedMessagesProvider.notifier);
     final auth = ref.watch(firebaseAuthProvider);
-    print(selectedMessages.state.length);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0, horizontal: 12),
       child: Align(
@@ -66,11 +65,9 @@ class ChatBubble extends ConsumerWidget {
             if (selected.isEmpty &&
                 messageModel.senderId == auth.currentUser?.uid) {
               ref.read(selectedMessagesProvider.notifier).state = [
-                ...selected,
                 messageModel,
               ];
             }
-
             activeReactionOverlayEntry?.remove();
             final renderBox = context.findRenderObject() as RenderBox?;
             final overlay = Overlay.of(context);
