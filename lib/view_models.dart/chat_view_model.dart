@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:record/record.dart';
 import 'package:talkie/constants/app_constants.dart';
 import 'package:talkie/models/chat_model.dart';
@@ -14,6 +15,7 @@ import 'package:talkie/repositories/chat_repository.dart';
 import 'package:talkie/repositories/methods/storage_methods.dart';
 import 'package:talkie/type_defs.dart';
 import 'package:talkie/utils/methods.dart';
+import 'package:talkie/utils/permissions.dart';
 import 'package:uuid/uuid.dart';
 
 final chatViewModelProvider = StateNotifierProvider<ChatViewModel, bool>(
@@ -176,17 +178,25 @@ class ChatViewModel extends StateNotifier<bool> {
     res.fold((l) => showToast(l.message ?? errorText), (r) => null);
   }
 
-  FutureVoid startRecording() async {
-    final hasPermission = await _audioRecorder.hasPermission();
-    if (hasPermission) {
-      final tempDir = Directory.systemTemp;
-      final filePath = '${tempDir.path}/${const Uuid().v4()}.m4a';
-      await _audioRecorder.start(const RecordConfig(), path: filePath);
+  Future<void> startRecording() async {
+    final status = await Permission.microphone.status;
 
-      state = true;
-    } else {
-      showToast('Microphone permission denied');
+    if (!status.isGranted) {
+      final granted = await requestMicrophonePermission();
+      // First-time press: Just request permission, do nothing more
+      if (!granted) {
+        showToast('Microphone permission not granted');
+      }
+      return;
     }
+
+    // Start recording only if permission was already granted
+    final tempDir = Directory.systemTemp;
+    final filePath = '${tempDir.path}/${const Uuid().v4()}.m4a';
+
+    await _audioRecorder.start(const RecordConfig(), path: filePath);
+
+    state = true;
   }
 
   FutureVoid stopRecordingAndSend(String chatId, BuildContext context) async {
@@ -233,11 +243,15 @@ class ChatViewModel extends StateNotifier<bool> {
   FutureVoid cancelRecording() async {
     if (await isRecording()) {
       _audioRecorder.cancel();
+      showToast('Recording cancelled');
       state = false;
     }
   }
 
-  FutureVoid deleteMessages(String chatId, List<MessageModel> messageModels) async {
+  FutureVoid deleteMessages(
+    String chatId,
+    List<MessageModel> messageModels,
+  ) async {
     final res = await _chatRepository.deleteMessages(chatId, messageModels);
     res.fold((l) => showToast(l.message!), (r) => null);
   }

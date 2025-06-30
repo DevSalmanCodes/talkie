@@ -397,7 +397,6 @@ class _ChatViewState extends ConsumerState<ChatView> {
                               ref
                                   .read(chatViewModelProvider.notifier)
                                   .cancelRecording();
-                              showToast('Recording cancelled');
                             }
                           });
                         }
