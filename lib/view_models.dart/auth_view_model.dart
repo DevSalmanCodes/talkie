@@ -16,6 +16,7 @@ final authViewModelProvider = StateNotifierProvider<AuthViewModel, bool>(
   ),
 );
 
+
 final authStateChangesProvider = StreamProvider.autoDispose<User?>((ref) {
   return FirebaseAuth.instance.authStateChanges();
 });

@@ -98,7 +98,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                             width: width,
                             onTap: _onLogin,
                             child: isLoading
-                                ? const Loader(color: Colors.black,)
+                                ? const Loader(color: Colors.black)
                                 : Text(
                                     'Login',
                                     style: TextStyleConstants.boldTextStyle

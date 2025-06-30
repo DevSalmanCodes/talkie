@@ -7,9 +7,6 @@ class MessageModel {
   final String type;
   final String contentUrl;
   final Map<String, List<String>> reactions;
- 
-   
-
 
   MessageModel({
     required this.id,
@@ -45,14 +42,9 @@ class MessageModel {
       type: map['type'] as String,
       contentUrl: map['contentUrl'] as String,
       reactions: (map['reactions'] as Map<String, dynamic>).map(
-        (key, value) => MapEntry(
-          key,
-          List<String>.from(value as List<dynamic>),
-        ),
+        (key, value) =>
+            MapEntry(key, List<String>.from(value as List<dynamic>)),
       ),
     );
-  
   }
-
-
 }
